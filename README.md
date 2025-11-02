@@ -1,4 +1,4 @@
-
+## ALUNO: **João Pedro Oliveira Santos**
 O `XMLHttpRequest` (XHR) foi a API original que permitiu ao JavaScript fazer requisições a um servidor sem recarregar a página (a base do AJAX).
 
 **Paradigma:** Baseado em eventos e *callbacks*.
