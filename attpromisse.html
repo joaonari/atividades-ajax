@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<body>
+<div id="demo">
+    <h1>Exemplo com new Promise() (Envolvendo XHR)</h1>
+    <input type="text" name="cep" id="cep" placeholder="Digite seu CEP">
+    <button type="button" onclick="loadDoc()">Pesquisar CEP</button>
+    <br>
+    <input type="text" id="logradouro" placeholder="Logradouro">
+    <br>
+    <input type="text" id="complemento" placeholder="Complemento">
+    <br>
+    <input type="text" id="bairro" placeholder="Bairro">
+    <br>
+    <input type="text" id="localidade" placeholder="Cidade">
+    <br>
+    <input type="text" id="uf" placeholder="UF">
+</div>
+<script>
+// função que transforma em Promise o XHR
+function getCepPromise(cep) {
+  // retorna uma nova Promise
+  return new Promise((resolve, reject) => {
+    const url = `https://viacep.com.br/ws/${cep}/json`;
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", url, true);
+
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4) {
+        if (this.status == 200) {
+          // se der certo ^
+          const endereco = JSON.parse(this.responseText);
+          if (endereco.erro) {
+            reject('CEP não encontrado.'); // rejeita a promise
+          } else {
+            resolve(endereco); // preenche a promise com os dados
+          }
+        } else {
+          // erro HTTP
+          reject('Erro na requisição: ' + this.status); // rejeita a promise
+        }
+      }
+    };
+    
+    // erro de rede
+    xhttp.onerror = function() {
+      reject('Erro de rede.');
+    };
+
+    xhttp.send();
+  });
+}
+
+//A função loadDoc agora consome a Promise
+function loadDoc() {
+  let cep = document.getElementById("cep").value;
+
+  getCepPromise(cep)
+    .then(endereco => {
+      // Sucesso (promise resolvida)
+      console.log('Resposta recebida - status OK');
+      console.log(endereco);
+      document.getElementById("logradouro").value = endereco.logradouro;
+      document.getElementById("complemento").value = endereco.complemento;
+      document.getElementById("bairro").value = endereco.bairro;
+      document.getElementById("localidade").value = endereco.localidade;
+      document.getElementById("uf").value = endereco.uf;
+    })
+    .catch(error => {
+      //falha (promise rejeitada)
+      console.error('Falha ao buscar o CEP:', error);
+      alert(error); // ex: 'CEP não encontrado.' ou 'Erro de rede.'
+    });
+}
+</script>
+
+</body>
+</html>

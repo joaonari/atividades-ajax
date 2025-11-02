@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<body>
+<div id="demo">
+    <h1>Exemplo com async/await</h1>
+    <input type="text" name="cep" id="cep" placeholder="Digite seu CEP">
+    <button type="button" onclick="loadDoc()">Pesquisar CEP</button>
+    <br>
+    <input type="text" id="logradouro" placeholder="Logradouro">
+    <br>
+    <input type="text" id="complemento" placeholder="Complemento">
+    <br>
+    <input type="text" id="bairro" placeholder="Bairro">
+    <br>
+    <input type="text" id="localidade" placeholder="Cidade">
+    <br>
+    <input type="text" id="uf" placeholder="UF">
+</div>
+<script>
+//a função precisa ser declarada como 'async' para usar 'await'
+async function loadDoc() {
+  let cep = document.getElementById("cep").value;
+  const url = `https://viacep.com.br/ws/${cep}/json`;
+
+  // 'try...catch' é usado para tratar erros (substitui o .catch())
+  try {
+    //'await' pausa a função até a promise do fetch ser resolvida
+    const response = await fetch(url);
+
+    // verificamos se a resposta de rede foi OK (status 2xx)
+    if (!response.ok) {
+      throw new Error('Erro na requisição: ' + response.status);
+    }
+
+    //'await' pausa novamente até a promise do .json() ser resolvida
+    const endereco = await response.json();
+
+    //verificamos o erro lógico do ViaCEP
+    if (endereco.erro) {
+        console.log('CEP não encontrado.');
+        alert('CEP não encontrado.');
+        return;
+    }
+
+    //sucesso! o código segue de forma linear
+    console.log('Resposta recebida - status OK');
+    console.log(endereco);
+    
+    document.getElementById("logradouro").value = endereco.logradouro;
+    document.getElementById("complemento").value = endereco.complemento;
+    document.getElementById("bairro").value = endereco.bairro;
+    document.getElementById("localidade").value = endereco.localidade;
+    document.getElementById("uf").value = endereco.uf;
+
+  } catch (error) {
+    //pega erros de rede ou o erro que "jogamos" (throw)
+    console.error('Falha ao buscar o CEP:', error);
+    alert('Falha ao buscar o CEP. Verifique o console.');
+  }
+}
+</script>
+
+</body>
+</html>
